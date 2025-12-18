@@ -41,7 +41,7 @@
                             <td>
                               <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(1, 'Ahmad Rahman', 5, 25000, 'Completed')">View</button>
-                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(1, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="editOrder(1, this)">Edit</button>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(1, this)">Delete</button>
                               </div>
                             </td>
@@ -55,7 +55,7 @@
                             <td>
                               <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(2, 'Siti Nurhaliza', 3, 45000, 'In Progress')">View</button>
-                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(2, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="editOrder(2, this)">Edit</button>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(2, this)">Delete</button>
                               </div>
                             </td>
@@ -69,7 +69,7 @@
                             <td>
                               <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(3, 'Budi Santoso', 7, 30000, 'Pending')">View</button>
-                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(3, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="editOrder(3, this)">Edit</button>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(3, this)">Delete</button>
                               </div>
                             </td>
@@ -83,7 +83,7 @@
                             <td>
                               <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(4, 'Maya Sari', 2, 55000, 'Completed')">View</button>
-                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(4, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="editOrder(4, this)">Edit</button>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(4, this)">Delete</button>
                               </div>
                             </td>
@@ -97,7 +97,7 @@
                             <td>
                               <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(5, 'Rizki Pratama', 4, 35000, 'In Progress')">View</button>
-                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(5, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="editOrder(5, this)">Edit</button>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(5, this)">Delete</button>
                               </div>
                             </td>
@@ -241,6 +241,48 @@
         const total = parseInt(form.total.value, 10) || 0;
         const status = form.status.value;
         const tableBody = document.querySelector('#dataTable tbody');
+
+        // Edit mode
+        if (form.dataset.editId) {
+          const editId = Number(form.dataset.editId);
+          const rows = Array.from(tableBody.querySelectorAll('tr'));
+          const tr = rows.find(r => parseInt(r.cells[0].textContent,10) === editId);
+          if (tr) {
+            tr.cells[1].textContent = nama;
+            tr.cells[2].textContent = meja;
+            tr.cells[3].textContent = total;
+            tr.cells[4].textContent = status;
+
+            // Reattach button handlers to capture updated values
+            const buttons = tr.querySelectorAll('button');
+            const [viewBtn, editBtn, deleteBtn] = buttons;
+
+            const newView = viewBtn.cloneNode(true);
+            newView.addEventListener('click', () => showOrderDetail(editId, nama, meja, total, status));
+            viewBtn.parentNode.replaceChild(newView, viewBtn);
+
+            const newEdit = editBtn.cloneNode(true);
+            newEdit.addEventListener('click', () => editOrder(editId, newEdit));
+            editBtn.parentNode.replaceChild(newEdit, editBtn);
+
+            const newDelete = deleteBtn.cloneNode(true);
+            newDelete.addEventListener('click', () => deleteOrder(editId, newDelete));
+            deleteBtn.parentNode.replaceChild(newDelete, deleteBtn);
+          }
+
+          if (orderFoods[editId]) orderFoods[editId] = orderFoods[editId] || [];
+
+          delete form.dataset.editId;
+          form.reset();
+          document.getElementById('createOrderModalLabel').textContent = 'Create Order';
+          form.querySelector('button[type="submit"]').textContent = 'Create';
+          const createModalEl = document.getElementById('createOrderModal');
+          const bsModal = bootstrap.Modal.getInstance(createModalEl);
+          if (bsModal) bsModal.hide();
+          return;
+        }
+
+        // Create mode
         const ids = Array.from(tableBody.querySelectorAll('tr')).map(r => parseInt(r.cells[0].textContent,10) || 0);
         const newId = ids.length ? Math.max(...ids) + 1 : 1;
 
@@ -254,15 +296,15 @@
           <td>
             <div class="btn-group" role="group">
               <button type="button" class="btn btn-sm btn-info">View</button>
-              <button type="button" class="btn btn-sm btn-warning">Remove</button>
+              <button type="button" class="btn btn-sm btn-warning">Edit</button>
               <button type="button" class="btn btn-sm btn-danger">Delete</button>
             </div>
           </td>
         `;
 
-        const [viewBtn, removeBtn, deleteBtn] = tr.querySelectorAll('button');
+        const [viewBtn, editBtn, deleteBtn] = tr.querySelectorAll('button');
         viewBtn.addEventListener('click', () => showOrderDetail(newId, nama, meja, total, status));
-        removeBtn.addEventListener('click', () => removeOrder(newId, removeBtn));
+        editBtn.addEventListener('click', () => editOrder(newId, editBtn));
         deleteBtn.addEventListener('click', () => deleteOrder(newId, deleteBtn));
 
         tableBody.appendChild(tr);
@@ -273,16 +315,33 @@
         if (bsModal) bsModal.hide();
       });
 
-      function removeOrder(id, button) {
-        const tr = button.closest('tr');
+
+      function editOrder(id, button) {
+        // Find the table row
+        let tr = button ? button.closest('tr') : null;
+        if (!tr) {
+          const rows = document.querySelectorAll('#dataTable tbody tr');
+          tr = Array.from(rows).find(r => parseInt(r.cells[0].textContent,10) === Number(id));
+        }
         if (!tr) return;
-        tr.classList.add('table-warning','text-muted');
-        tr.dataset.removed = '1';
-        Array.from(tr.querySelectorAll('button')).forEach(b => b.disabled = true);
-        const badge = document.createElement('span');
-        badge.className = 'badge bg-secondary ms-2';
-        badge.textContent = 'Removed';
-        button.parentNode.appendChild(badge);
+
+        const nama = tr.cells[1].textContent.trim();
+        const meja = tr.cells[2].textContent.trim();
+        const total = tr.cells[3].textContent.trim();
+        const status = tr.cells[4].textContent.trim();
+
+        const form = document.getElementById('createOrderForm');
+        form.dataset.editId = id;
+        form.nama.value = nama;
+        form.meja.value = meja;
+        form.total.value = total;
+        form.status.value = status;
+
+        document.getElementById('createOrderModalLabel').textContent = 'Edit Order';
+        form.querySelector('button[type="submit"]').textContent = 'Update';
+
+        const createModal = new bootstrap.Modal(document.getElementById('createOrderModal'));
+        createModal.show();
       }
 
       function deleteOrder(id, button) {

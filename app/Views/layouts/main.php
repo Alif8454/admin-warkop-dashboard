@@ -6,10 +6,10 @@
     <title>Dashboard</title>
     <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/assets/styles/vendor/font-awesome.css" rel="stylesheet">
-    <link href="/assets/styles/vendor/themify-icons.css" rel="stylesheet">
-    <link href="/assets/styles/utils/theme.css" rel="stylesheet">
-    <link href="/assets/styles/index.css" rel="stylesheet">
+    <link href="<?= base_url('assets/styles/vendor/font-awesome.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/styles/vendor/themify-icons.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/styles/utils/theme.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/styles/index.css') ?>" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
@@ -105,7 +105,7 @@
                   <div class="peers ai-c fxw-nw">
                     <div class="peer">
                       <div class="logo">
-                        <img src="/assets/static/images/logo-warkop.png" alt="">
+                        <img src="<?= base_url('assets/static/images/logo-warkop.png') ?>" alt="">
                       </div>
                     </div>
                     <div class="peer peer-greed">
@@ -370,11 +370,8 @@
     </div>
 
     
+  <script type="module" src="<?= base_url('assets/scripts/index.js') ?>"></script>
+  <?= $this->renderSection("scripts") ?>
   </body>
 </html>
-
-
-<script src="/assets/scripts/app.js"></script>
-<script src="/assets/scripts/index.js"></script>
-<?= $this->renderSection("scripts") ?>
 

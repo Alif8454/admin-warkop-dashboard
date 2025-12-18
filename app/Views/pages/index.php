@@ -6,7 +6,10 @@
               <div class="masonry-sizer col-md-6"></div>        
               <div class="masonry-item col-12">
                   <div class="bgc-white bd bdrs-3 p-20 mB-20">
-                    <h4 class="c-grey-900 mB-20">Order</h4>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h4 class="c-grey-900 mB-0">Order</h4>
+                      <button id="createOrderBtn" class="btn btn-primary">Create Order</button>
+                    </div>
                     <table id="dataTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                         <thead>
                           <tr>
@@ -35,7 +38,13 @@
                             <td>5</td>
                             <td>25000</td>
                             <td>Completed</td>
-                            <td><a href="#" onclick="showOrderDetail(1, 'Ahmad Rahman', 5, 25000, 'Completed'); return false;">Lihat Detail</a></td>
+                            <td>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(1, 'Ahmad Rahman', 5, 25000, 'Completed')">View</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(1, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(1, this)">Delete</button>
+                              </div>
+                            </td>
                           </tr>
                           <tr>
                             <td>2</td>
@@ -43,7 +52,13 @@
                             <td>3</td>
                             <td>45000</td>
                             <td>In Progress</td>
-                            <td><a href="#" onclick="showOrderDetail(2, 'Siti Nurhaliza', 3, 45000, 'In Progress'); return false;">Lihat Detail</a></td>
+                            <td>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(2, 'Siti Nurhaliza', 3, 45000, 'In Progress')">View</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(2, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(2, this)">Delete</button>
+                              </div>
+                            </td>
                           </tr>
                           <tr>
                             <td>3</td>
@@ -51,7 +66,13 @@
                             <td>7</td>
                             <td>30000</td>
                             <td>Pending</td>
-                            <td><a href="#" onclick="showOrderDetail(3, 'Budi Santoso', 7, 30000, 'Pending'); return false;">Lihat Detail</a></td>
+                            <td>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(3, 'Budi Santoso', 7, 30000, 'Pending')">View</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(3, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(3, this)">Delete</button>
+                              </div>
+                            </td>
                           </tr>
                           <tr>
                             <td>4</td>
@@ -59,7 +80,13 @@
                             <td>2</td>
                             <td>55000</td>
                             <td>Completed</td>
-                            <td><a href="#" onclick="showOrderDetail(4, 'Maya Sari', 2, 55000, 'Completed'); return false;">Lihat Detail</a></td>
+                            <td>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(4, 'Maya Sari', 2, 55000, 'Completed')">View</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(4, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(4, this)">Delete</button>
+                              </div>
+                            </td>
                           </tr>
                           <tr>
                             <td>5</td>
@@ -67,16 +94,57 @@
                             <td>4</td>
                             <td>35000</td>
                             <td>In Progress</td>
-                            <td><a href="#" onclick="showOrderDetail(5, 'Rizki Pratama', 4, 35000, 'In Progress'); return false;">Lihat Detail</a></td>
+                            <td>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-info" onclick="showOrderDetail(5, 'Rizki Pratama', 4, 35000, 'In Progress')">View</button>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="removeOrder(5, this)">Remove</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteOrder(5, this)">Delete</button>
+                              </div>
+                            </td>
                           </tr>
                         </tbody>
                       </table>
                   </div>
               </div>
             </div>
-          
-        
 
+    <!-- Create Order Modal -->
+    <div class="modal fade" id="createOrderModal" tabindex="-1" aria-labelledby="createOrderModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form id="createOrderForm" class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createOrderModalLabel">Create Order</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+             <div class="mb-3">
+               <label class="form-label">Nama</label>
+               <input type="text" class="form-control" name="nama" required>
+             </div>
+             <div class="mb-3">
+               <label class="form-label">Meja</label>
+               <input type="number" class="form-control" name="meja" required>
+             </div>
+             <div class="mb-3">
+               <label class="form-label">Total</label>
+               <input type="number" class="form-control" name="total" required>
+             </div>
+             <div class="mb-3">
+               <label class="form-label">Status</label>
+               <select class="form-select" name="status">
+                 <option>Pending</option>
+                 <option>In Progress</option>
+                 <option>Completed</option>
+               </select>
+             </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
         
 <?php $this->endSection() ?>
@@ -157,6 +225,71 @@
         // Show the modal
         const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
         modal.show();
+      }
+
+      // Create / Remove / Delete handlers
+      document.getElementById('createOrderBtn').addEventListener('click', function () {
+        const createModal = new bootstrap.Modal(document.getElementById('createOrderModal'));
+        createModal.show();
+      });
+
+      document.getElementById('createOrderForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const form = e.target;
+        const nama = form.nama.value.trim();
+        const meja = parseInt(form.meja.value, 10) || 0;
+        const total = parseInt(form.total.value, 10) || 0;
+        const status = form.status.value;
+        const tableBody = document.querySelector('#dataTable tbody');
+        const ids = Array.from(tableBody.querySelectorAll('tr')).map(r => parseInt(r.cells[0].textContent,10) || 0);
+        const newId = ids.length ? Math.max(...ids) + 1 : 1;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${newId}</td>
+          <td>${nama}</td>
+          <td>${meja}</td>
+          <td>${total}</td>
+          <td>${status}</td>
+          <td>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-sm btn-info">View</button>
+              <button type="button" class="btn btn-sm btn-warning">Remove</button>
+              <button type="button" class="btn btn-sm btn-danger">Delete</button>
+            </div>
+          </td>
+        `;
+
+        const [viewBtn, removeBtn, deleteBtn] = tr.querySelectorAll('button');
+        viewBtn.addEventListener('click', () => showOrderDetail(newId, nama, meja, total, status));
+        removeBtn.addEventListener('click', () => removeOrder(newId, removeBtn));
+        deleteBtn.addEventListener('click', () => deleteOrder(newId, deleteBtn));
+
+        tableBody.appendChild(tr);
+        orderFoods[newId] = [];
+        form.reset();
+        const createModalEl = document.getElementById('createOrderModal');
+        const bsModal = bootstrap.Modal.getInstance(createModalEl);
+        if (bsModal) bsModal.hide();
+      });
+
+      function removeOrder(id, button) {
+        const tr = button.closest('tr');
+        if (!tr) return;
+        tr.classList.add('table-warning','text-muted');
+        tr.dataset.removed = '1';
+        Array.from(tr.querySelectorAll('button')).forEach(b => b.disabled = true);
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-secondary ms-2';
+        badge.textContent = 'Removed';
+        button.parentNode.appendChild(badge);
+      }
+
+      function deleteOrder(id, button) {
+        if (!confirm('Delete order #' + id + '? This action cannot be undone.')) return;
+        const tr = button.closest('tr');
+        if (tr) tr.remove();
+        if (orderFoods[id]) delete orderFoods[id];
       }
     </script>
 

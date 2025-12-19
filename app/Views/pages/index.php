@@ -17,6 +17,7 @@
                             <th>Nama</th>
                             <th>Meja</th>
                             <th>Total</th>
+                            <th>Foods</th>
                             <th>Status</th>
                             <th>Aksi</th>
                           </tr>
@@ -27,6 +28,7 @@
                             <th>Nama</th>
                             <th>Meja</th>
                             <th>Total</th>
+                            <th>Foods</th>
                             <th>Status</th>
                             <th>Aksi</th>
                           </tr>
@@ -37,6 +39,7 @@
                             <td>Ahmad Rahman</td>
                             <td>5</td>
                             <td>25000</td>
+                            <td>Nasi Goreng, Es Teh</td>
                             <td>Completed</td>
                             <td>
                               <div class="btn-group" role="group">
@@ -51,6 +54,7 @@
                             <td>Siti Nurhaliza</td>
                             <td>3</td>
                             <td>45000</td>
+                            <td>Ayam Bakar, Jus Jeruk, Kerupuk</td>
                             <td>In Progress</td>
                             <td>
                               <div class="btn-group" role="group">
@@ -65,6 +69,7 @@
                             <td>Budi Santoso</td>
                             <td>7</td>
                             <td>30000</td>
+                            <td>Sate Ayam, Nasi Putih, Es Kelapa</td>
                             <td>Pending</td>
                             <td>
                               <div class="btn-group" role="group">
@@ -79,6 +84,7 @@
                             <td>Maya Sari</td>
                             <td>2</td>
                             <td>55000</td>
+                            <td>Bakso, Mie Goreng, Es Campur, Pisang Goreng</td>
                             <td>Completed</td>
                             <td>
                               <div class="btn-group" role="group">
@@ -93,6 +99,7 @@
                             <td>Rizki Pratama</td>
                             <td>4</td>
                             <td>35000</td>
+                            <td>Rendang, Nasi Uduk, Kopi Hitam</td>
                             <td>In Progress</td>
                             <td>
                               <div class="btn-group" role="group">
@@ -129,6 +136,18 @@
                <label class="form-label">Total</label>
                <input type="number" class="form-control" name="total" required>
              </div>
+
+             <div class="mb-3">
+               <label class="form-label">Foods</label>
+               <div class="input-group mb-2">
+                 <input type="text" id="foodName" class="form-control" placeholder="Food name (e.g., Nasi Goreng)">
+                 <input type="number" id="foodQty" class="form-control" placeholder="Qty" style="max-width:90px">
+                 <input type="number" id="foodPrice" class="form-control" placeholder="Price" style="max-width:120px">
+                 <button type="button" id="addFoodBtn" class="btn btn-outline-primary">Add</button>
+               </div>
+               <ul id="foodList" class="list-group"></ul>
+             </div>
+
              <div class="mb-3">
                <label class="form-label">Status</label>
                <select class="form-select" name="status">
@@ -228,7 +247,54 @@
       }
 
       // Create / Remove / Delete handlers
+      // Manage foods in the create/edit modal
+      let formFoods = [];
+      function renderFormFoodList() {
+        const el = document.getElementById('foodList');
+        el.innerHTML = '';
+        formFoods.forEach((food, index) => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item d-flex justify-content-between align-items-center';
+          li.innerHTML = `
+            <div>
+              <strong>${food.name}</strong> <small class="text-muted">x${food.quantity}</small>
+              <div class="text-muted small">Rp ${Number(food.price).toLocaleString()}</div>
+            </div>
+            <div>
+              <button type="button" class="btn btn-sm btn-danger" data-index="${index}">Remove</button>
+            </div>
+          `;
+          li.querySelector('button').addEventListener('click', (e) => {
+            formFoods.splice(Number(e.target.dataset.index), 1);
+            renderFormFoodList();
+          });
+          el.appendChild(li);
+        });
+      }
+
+      document.getElementById('addFoodBtn').addEventListener('click', () => {
+        const name = document.getElementById('foodName').value.trim();
+        const qty = parseInt(document.getElementById('foodQty').value, 10) || 1;
+        const price = parseInt(document.getElementById('foodPrice').value, 10) || 0;
+        if (!name) return;
+        formFoods.push({ name, quantity: qty, price });
+        document.getElementById('foodName').value = '';
+        document.getElementById('foodQty').value = '';
+        document.getElementById('foodPrice').value = '';
+        renderFormFoodList();
+      });
+
       document.getElementById('createOrderBtn').addEventListener('click', function () {
+        formFoods = [];
+        renderFormFoodList();
+        document.getElementById('foodName').value = '';
+        document.getElementById('foodQty').value = '';
+        document.getElementById('foodPrice').value = '';
+        const form = document.getElementById('createOrderForm');
+        delete form.dataset.editId;
+        form.reset();
+        document.getElementById('createOrderModalLabel').textContent = 'Create Order';
+        form.querySelector('button[type="submit"]').textContent = 'Create';
         const createModal = new bootstrap.Modal(document.getElementById('createOrderModal'));
         createModal.show();
       });
@@ -251,7 +317,8 @@
             tr.cells[1].textContent = nama;
             tr.cells[2].textContent = meja;
             tr.cells[3].textContent = total;
-            tr.cells[4].textContent = status;
+            tr.cells[4].textContent = formFoods.map(f => f.name).join(', ');
+            tr.cells[5].textContent = status;
 
             // Reattach button handlers to capture updated values
             const buttons = tr.querySelectorAll('button');
@@ -270,10 +337,13 @@
             deleteBtn.parentNode.replaceChild(newDelete, deleteBtn);
           }
 
-          if (orderFoods[editId]) orderFoods[editId] = orderFoods[editId] || [];
+          // Persist foods
+          orderFoods[editId] = formFoods.map(f => ({ ...f }));
 
           delete form.dataset.editId;
           form.reset();
+          formFoods = [];
+          renderFormFoodList();
           document.getElementById('createOrderModalLabel').textContent = 'Create Order';
           form.querySelector('button[type="submit"]').textContent = 'Create';
           const createModalEl = document.getElementById('createOrderModal');
@@ -287,11 +357,13 @@
         const newId = ids.length ? Math.max(...ids) + 1 : 1;
 
         const tr = document.createElement('tr');
+        const foodsText = formFoods.map(f => f.name).join(', ');
         tr.innerHTML = `
           <td>${newId}</td>
           <td>${nama}</td>
           <td>${meja}</td>
           <td>${total}</td>
+          <td>${foodsText}</td>
           <td>${status}</td>
           <td>
             <div class="btn-group" role="group">
@@ -308,7 +380,9 @@
         deleteBtn.addEventListener('click', () => deleteOrder(newId, deleteBtn));
 
         tableBody.appendChild(tr);
-        orderFoods[newId] = [];
+        orderFoods[newId] = formFoods.map(f => ({ ...f }));
+        formFoods = [];
+        renderFormFoodList();
         form.reset();
         const createModalEl = document.getElementById('createOrderModal');
         const bsModal = bootstrap.Modal.getInstance(createModalEl);
@@ -328,7 +402,7 @@
         const nama = tr.cells[1].textContent.trim();
         const meja = tr.cells[2].textContent.trim();
         const total = tr.cells[3].textContent.trim();
-        const status = tr.cells[4].textContent.trim();
+        const status = tr.cells[5].textContent.trim();
 
         const form = document.getElementById('createOrderForm');
         form.dataset.editId = id;
@@ -336,6 +410,10 @@
         form.meja.value = meja;
         form.total.value = total;
         form.status.value = status;
+
+        // Prefill foods from orderFoods if available
+        formFoods = orderFoods[id] ? orderFoods[id].map(f => ({ ...f })) : [];
+        renderFormFoodList();
 
         document.getElementById('createOrderModalLabel').textContent = 'Edit Order';
         form.querySelector('button[type="submit"]').textContent = 'Update';
